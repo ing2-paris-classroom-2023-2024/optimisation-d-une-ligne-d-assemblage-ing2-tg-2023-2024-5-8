@@ -1,5 +1,5 @@
-#ifndef TP6_DUFLOT_VARET_GRAPHE_H
-#define TP6_DUFLOT_VARET_GRAPHE_H
+#ifndef PROJET_GRAPHE_H
+#define PROJET_GRAPHE_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,4 +40,4 @@ struct Pile {
 };
 
 
-#endif //TP6_DUFLOT_VARET_GRAPHE_H
+#endif //PROJET_GRAPHE_H
