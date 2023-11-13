@@ -39,5 +39,8 @@ struct Pile {
     int sommetCourant;
 };
 
+//fonction pour afficher les successeurs du sommet num
+void afficher_successeurs(pSommet* sommet, int num);
+
 
 #endif //PROJET_GRAPHE_H 
