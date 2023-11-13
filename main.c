@@ -145,14 +145,6 @@ void graphe_afficher(Graphe* graphe)
 
 }
 
-void afficher_successeurs(pSommet* sommet, int num) {
-    pArc arc = sommet[num]->arc;
-
-    while (arc != NULL) {
-        printf(" -> %d (%d)", arc->sommet, arc->distance);
-        arc = arc->arc_suivant;
-    }
-}
 
 int main()
 {
