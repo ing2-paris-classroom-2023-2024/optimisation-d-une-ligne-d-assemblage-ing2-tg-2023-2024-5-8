@@ -1,5 +1,9 @@
 #include "Graphe.h"
 #include <stdbool.h> // pour utiliser des booléens
+#include "definition.c"
+#include "exclusion.c"
+#include "precedence.c"
+
 
 
 /* affichage des successeurs du sommet num*/
@@ -126,55 +130,7 @@ Graphe* CreerGraphe(int ordre)
 }
 
 
-/* La construction du réseau peut se faire à partir d'un fichier dont le nom est passé en paramètre
-Le fichier contient : ordre, taille,orientation (0 ou 1) et liste des arcs */
-Graphe * lire_graphe(char * nomFichier)
-{
-    Graphe* graphe;
-    FILE * ifs = fopen(nomFichier,"r");
-    int taille, orientation, ordre, s1, s2;
 
-    if (!ifs)
-    {
-        printf("Erreur de lecture fichier\n");
-        exit(-1);
-    }
-
-    fscanf(ifs,"%d",&ordre);
-
-    graphe=CreerGraphe(ordre); // créer le graphe d'ordre sommets
-
-    fscanf(ifs,"%d",&taille);
-    fscanf(ifs,"%d",&orientation);
-
-    graphe->orientation=orientation;
-    graphe->ordre=ordre;
-    graphe->taille=taille;
-
-    int premierSommet = -1; // initialisez la valeur du premier sommet
-
-
-    // créer les arêtes du graphe
-    for (int i=0; i<taille; ++i)
-    {
-        fscanf(ifs,"%d%d",&s1,&s2);
-
-        if (premierSommet == -1)
-        {
-            premierSommet = s1;
-        }
-        graphe->pSommet=CreerArete(graphe->pSommet, s1, s2, premierSommet);
-
-        if(!orientation)
-            graphe->pSommet=CreerArete(graphe->pSommet, s2, s1,premierSommet);
-    }
-    // ajuster les numéros de sommets en fonction du premier sommet détecté
-    /*for (int i = 0; i < ordre; i++)
-    {
-        graphe->pSommet[i]->valeur = graphe->pSommet[i]->valeur-premierSommet;
-    }*/
-    return graphe;
-}
 
 /*affichage du graphe avec les successeurs de chaque sommet */
 void graphe_afficher(Graphe* graphe)
@@ -294,8 +250,27 @@ void trouver_composantes_connexes(Graphe* graphe)
 }
 
 
-int main()
-{
+int main() {
+    printf("Hello, World!\n");
+
+    Graphe* graphe_exclu = lire_graphe("exclusions.txt");
+    Graphe* graphe_prece = lire_graphe("precedences.txt");
+    graphe_afficher(graphe_exclu);
+    graphe_afficher(graphe_prece);
+
+    lire_graphe_tps("operations.txt",graphe_prece);
+
+
+
+    for (int i=0;i<graphe_prece->ordre;i++)
+    {
+        printf("%d: %f\n",i,graphe_prece->pSommet[i]->temps);
+    }
+
+
+    ////////////////
+
+
     Graphe * g;
 
     char nom_fichier[100];
@@ -312,5 +287,10 @@ int main()
     printf("\n===============            Composantes Connexes :            ===============  \n");
     trouver_composantes_connexes(g); //que pour le graphe pas oriente
     return 0;
+
+    return 0;
 }
+
+//ajouter dans lire qui lise la taille du fichier avec le nombre de ligne et ensuite faire un tuc special pour le temps a la place du poids ?
+
 
