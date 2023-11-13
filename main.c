@@ -148,6 +148,36 @@ void graphe_afficher(Graphe* graphe)
 
 
 
+
+// fonction pour déterminer les composantes connexes d'un graphe
+void trouver_composantes_connexes(Graphe* graphe)
+{
+    bool* visite = (bool*)malloc(graphe->ordre * sizeof(bool));
+    int numero=1;
+    for (int i = 0; i < graphe->ordre; i++)
+        visite[i] = false;
+
+    for (int sommet = 0; sommet < graphe->ordre; sommet++)
+    {
+        if (!visite[sommet])
+        {
+            // nouvelle composante connexe
+            pComposanteConnexe composante = init_composante(graphe->ordre);
+            dfs_composante(graphe, visite, composante, sommet);
+
+            // afficher le contenu de la composante
+            printf("Composante connexe %d : ",numero++);
+            afficher_composante(composante);
+
+            // libérer la mémoire de la composante
+            free(composante->sommets);
+            free(composante);
+        }
+    }
+    free(visite);
+}
+
+
 int main()
 {
     Graphe * g;
