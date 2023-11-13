@@ -15,6 +15,59 @@ void afficher_successeurs(pSommet * sommet, int num)
     }
 }
 
+
+
+/* recherche en largeur (BFS) à partir d'un sommet donné */
+void BFS(Graphe* graphe, int sommetInitial)
+{
+    printf("\nBFS : Debut du traitement BFS, sommet initial = %d",sommetInitial);
+    // initialisation des structures de données pour BFS
+    bool* visite = (bool*)malloc(graphe->ordre * sizeof(bool));
+    pChemin chemin = NULL;
+    pChemin chemin_temp = NULL;
+
+    for (int i = 0; i < graphe->ordre; i++)
+        visite[i] = false;
+
+    // file pour BFS
+    int* file = (int*)malloc(graphe->ordre * sizeof(int));
+    int debut = 0;
+    int fin = 0;
+
+    // ajouter le sommet initial à la file
+    file[fin++] = sommetInitial;
+    visite[sommetInitial] = true;
+
+    int sommetCourant = file[debut++];
+    visite[sommetCourant] = true;
+    printf("\nBFS :      sommet initial = %d, sommets relies : ",sommetCourant);
+    // ajouter le sommet courant au chemin
+    pChemin nouveau_chemin = (pChemin)malloc(sizeof(struct Chemin));
+    nouveau_chemin->sommet = sommetCourant;
+    nouveau_chemin->suivant = chemin;
+    chemin = nouveau_chemin;
+
+    // parcourir les successeurs du sommet courant
+    pArc arc = graphe->pSommet[sommetCourant]->arc;
+
+    while (arc != NULL)
+    {
+        int successeur = graphe->pSommet[arc->sommet]->valeur;
+        if (!visite[successeur])
+        {
+            printf(" > %d",successeur);
+            visite[successeur] = true;
+            file[fin++] = successeur;
+        }
+        arc = arc->arc_suivant;
+    }
+    //libérer la mémoire
+    free(visite);
+    free(file);
+    liberer_chemin(chemin);
+}
+
+
 //ajouter l'arête entre les sommets s1 et s2 du graphe
 
 pSommet* CreerArete(pSommet* sommet,int s1,int s2, int premierSommet)
