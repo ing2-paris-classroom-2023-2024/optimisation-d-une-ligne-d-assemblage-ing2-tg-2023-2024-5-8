@@ -144,6 +144,24 @@ void graphe_afficher(Graphe* graphe)
     }
 
 }
+
+
+// fonction pour initialiser une composante connexe
+pComposanteConnexe init_composante(int taille)
+{
+    pComposanteConnexe composante = (pComposanteConnexe)malloc(sizeof(struct ComposanteConnexe));
+    composante->sommets = (int*)malloc(taille * sizeof(int));
+    composante->taille = 0;
+    return composante;
+}
+
+// fonction pour ajouter un sommet à une composante connexe
+void ajouter_sommet(pComposanteConnexe composante, int sommet)
+{
+    composante->sommets[composante->taille] = sommet;
+    composante->taille++;
+}
+
 // fonction pour afficher le contenu d'une composante connexe
 void afficher_composante(pComposanteConnexe composante)
 {
