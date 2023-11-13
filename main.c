@@ -145,9 +145,23 @@ void graphe_afficher(Graphe* graphe)
 
 }
 
+// fonction DFS pour trouver une composante connexe
+void dfs_composante(Graphe* graphe, bool* visite, pComposanteConnexe composante, int sommetCourant)
+{
+    visite[sommetCourant] = true;
+    ajouter_sommet(composante, sommetCourant);
+    pArc arc = graphe->pSommet[sommetCourant]->arc;
 
-
-
+    while (arc != NULL)
+    {
+        int successeur = arc->sommet;
+        if (!visite[successeur])
+        {
+            dfs_composante(graphe, visite, composante, successeur);
+        }
+        arc = arc->arc_suivant;
+    }
+}
 
 // fonction pour déterminer les composantes connexes d'un graphe
 void trouver_composantes_connexes(Graphe* graphe)
