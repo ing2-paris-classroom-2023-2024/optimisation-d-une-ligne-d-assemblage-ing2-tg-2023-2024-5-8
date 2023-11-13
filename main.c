@@ -198,6 +198,27 @@ void graphe_afficher(Graphe* graphe)
 
 }
 
+/* fonction utilitaire pour afficher un chemin */
+void afficher_chemin(pChemin chemin)
+{
+    if (chemin != NULL)
+    {
+        afficher_chemin(chemin->suivant);
+        printf("%d -> ", chemin->sommet);
+    }
+}
+
+/* fonction utilitaire pour libérer la mémoire d'un chemin */
+void liberer_chemin(pChemin chemin)
+{
+    if (chemin != NULL)
+    {
+        liberer_chemin(chemin->suivant);
+        free(chemin);
+    }
+}
+
+
 
 // fonction pour initialiser une composante connexe
 pComposanteConnexe init_composante(int taille)
@@ -226,7 +247,7 @@ void afficher_composante(pComposanteConnexe composante)
     printf("\n");
 }
 
-// fonction DFS pour trouver une composante connexe
+//-----------------------------------------fonction DFS pour trouver une composante connexe----------------------------------------
 void dfs_composante(Graphe* graphe, bool* visite, pComposanteConnexe composante, int sommetCourant)
 {
     visite[sommetCourant] = true;
