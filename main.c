@@ -146,6 +146,8 @@ void graphe_afficher(Graphe* graphe)
 }
 
 
+
+
 int main()
 {
     Graphe * g;
@@ -157,10 +159,12 @@ int main()
 
     g = lire_graphe(nom_fichier);
 
-
-
     // affichage du graphe
     graphe_afficher(g);
+
+    
+    printf("\n===============            Composantes Connexes :            ===============  \n");
+    trouver_composantes_connexes(g); //que pour le graphe pas oriente
     return 0;
 }
 
