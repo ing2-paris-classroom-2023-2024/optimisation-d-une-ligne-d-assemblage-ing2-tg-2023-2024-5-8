@@ -44,5 +44,10 @@ struct Pile {
 //fonction pour afficher les successeurs du sommet num
 void afficher_successeurs(pSommet* sommet, int num);
 
+//fonction pour créer le graphe
+Graphe* CreerGraphe(int ordre);
+
+//fonction pour lire le graphe depuis un fichier
+Graphe* lire_graphe(char* nomFichier);
 
 #endif //PROJET_GRAPHE_H 
