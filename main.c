@@ -144,6 +144,16 @@ void graphe_afficher(Graphe* graphe)
     }
 
 }
+// fonction pour afficher le contenu d'une composante connexe
+void afficher_composante(pComposanteConnexe composante)
+{
+
+    for (int i = 0; i < composante->taille; i++)
+    {
+        printf("%d ", composante->sommets[i]);
+    }
+    printf("\n");
+}
 
 // fonction DFS pour trouver une composante connexe
 void dfs_composante(Graphe* graphe, bool* visite, pComposanteConnexe composante, int sommetCourant)
