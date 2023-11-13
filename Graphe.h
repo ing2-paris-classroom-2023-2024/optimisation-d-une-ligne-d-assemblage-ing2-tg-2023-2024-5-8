@@ -50,4 +50,15 @@ Graphe* CreerGraphe(int ordre);
 //fonction pour lire le graphe depuis un fichier
 Graphe* lire_graphe(char* nomFichier);
 
+
+// structure pour stocker une composante connexe
+struct ComposanteConnexe
+{
+    int* sommets; // tableau des sommets dans la composante
+    int taille;   // nombre de sommets dans la composante
+};
+
+// alias de pointeur sur une composante connexe
+typedef struct ComposanteConnexe* pComposanteConnexe;
+
 #endif //PROJET_GRAPHE_H 
