@@ -74,7 +74,7 @@ Graphe* CreerGraphe(int ordre)
 
 
 /* La construction du réseau peut se faire à partir d'un fichier dont le nom est passé en paramètre
-Le fichier contient : ordre, taille,orientation (0 ou 1)et liste des arcs */
+Le fichier contient : ordre, taille,orientation (0 ou 1) et liste des arcs */
 Graphe * lire_graphe(char * nomFichier)
 {
     Graphe* graphe;
