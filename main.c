@@ -16,6 +16,7 @@ void afficher_successeurs(pSommet * sommet, int num)
 }
 
 //ajouter l'arête entre les sommets s1 et s2 du graphe
+
 pSommet* CreerArete(pSommet* sommet,int s1,int s2, int premierSommet)
 {
     //printf("\nCreer arrete (%d,%d) premierSommet=%d",s1,s2,premierSommet);
