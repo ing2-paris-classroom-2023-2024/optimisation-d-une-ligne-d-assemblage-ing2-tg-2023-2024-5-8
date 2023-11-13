@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+///--------------------------------------------STRUCTURES-------------------------------------------------
 struct Arc {
     int sommet;
     int capacite;
@@ -39,6 +40,7 @@ struct Pile {
     int sommetCourant;
 };
 
+///--------------------------------------------FONCTIONS-------------------------------------------------
 //fonction pour afficher les successeurs du sommet num
 void afficher_successeurs(pSommet* sommet, int num);
 
