@@ -286,11 +286,9 @@ int main() {
     
     printf("\n===============            Composantes Connexes :            ===============  \n");
     trouver_composantes_connexes(g); //que pour le graphe pas oriente
-    return 0;
 
     return 0;
 }
 
-//ajouter dans lire qui lise la taille du fichier avec le nombre de ligne et ensuite faire un tuc special pour le temps a la place du poids ?
 
 
