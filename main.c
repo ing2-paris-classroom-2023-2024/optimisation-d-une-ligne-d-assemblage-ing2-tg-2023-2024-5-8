@@ -251,8 +251,7 @@ void trouver_composantes_connexes(Graphe* graphe)
 
 
 int main() {
-    printf("Hello, World!\n");
-
+    
     Graphe* graphe_exclu = lire_graphe("exclusions.txt");
     Graphe* graphe_prece = lire_graphe("precedences.txt");
     graphe_afficher(graphe_exclu);
