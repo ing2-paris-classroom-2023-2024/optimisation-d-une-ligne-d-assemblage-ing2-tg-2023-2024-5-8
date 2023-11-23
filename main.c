@@ -132,8 +132,6 @@ Graphe* CreerGraphe(int ordre)
 }
 
 
-
-
 /*affichage du graphe avec les successeurs de chaque sommet */
 void graphe_afficher(Graphe* graphe)
 {
