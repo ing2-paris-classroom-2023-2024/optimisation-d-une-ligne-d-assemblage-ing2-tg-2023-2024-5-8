@@ -6,6 +6,8 @@
 
 
 
+
+
 /* affichage des successeurs du sommet num*/
 void afficher_successeurs(pSommet * sommet, int num)
 {
