@@ -22,9 +22,10 @@ pSommet* CreerArete(pSommet* sommet,int s1,int s2,int poids)
     {
         pArc Newarc=(pArc)malloc(sizeof(struct Arc));
         Newarc->sommet=s2;
-        Newarc->valeur = poids; // Stockage du poids
+        Newarc->poids = poids; // Stockage du poids
         Newarc->arc_suivant=NULL;
         sommet[s1]->arc=Newarc;
+        sommet[s1]->degre = 1;
         return sommet;
     }
 
@@ -37,7 +38,7 @@ pSommet* CreerArete(pSommet* sommet,int s1,int s2,int poids)
         }
         pArc Newarc=(pArc)malloc(sizeof(struct Arc));
         Newarc->sommet=s2;
-        Newarc->valeur=poids; // Stockage du poids
+        Newarc->poids=poids; // Stockage du poids
         Newarc->arc_suivant=NULL;
 
         if(temp->sommet>s2)
@@ -46,10 +47,12 @@ pSommet* CreerArete(pSommet* sommet,int s1,int s2,int poids)
             Newarc->sommet=temp->sommet;
             temp->sommet=s2;
             temp->arc_suivant=Newarc;
+            sommet[s1]->degre++;
             return sommet;
         }
 
         temp->arc_suivant=Newarc;
+        sommet[s1]->degre++;
         return sommet;
     }
 }
@@ -78,11 +81,43 @@ Graphe* lire_graphe(char* nomFichier) {
     for (int i = 0; i < taille; ++i) {
         fscanf(ifs, "%d%d", &s1, &s2);
         graphe->pSommet = CreerArete(graphe->pSommet, s1, s2, 0);//initialise le poids a 0 supprimer si pas besoin
+        graphe->pSommet = CreerArete(graphe->pSommet, s2, s1, 0);
     }
 
     fclose(ifs);
     return graphe;
 }
+
+
+Graphe* lire_graphe_oriente(char* nomFichier) {
+    Graphe* graphe;
+    FILE* ifs = fopen(nomFichier, "r");
+    int ordre, taille, s1, s2;
+
+    if (!ifs) {
+        printf("Erreur de lecture fichier\n");
+        exit(-1);
+    }
+
+    fscanf(ifs, "%d", &ordre);
+    graphe = CreerGraphe(ordre);
+    graphe->ordre = ordre;
+
+    // Lire la taille du graphe
+    fscanf(ifs, "%d", &taille);
+    graphe->taille = taille;
+
+    // Lire les arêtes du graphe
+    for (int i = 0; i < taille; ++i) {
+        fscanf(ifs, "%d%d", &s1, &s2);
+        graphe->pSommet = CreerArete(graphe->pSommet, s1, s2, 0);//initialise le poids a 0 supprimer si pas besoin
+    }
+
+    fclose(ifs);
+    return graphe;
+}
+
+
 
 void lire_graphe_tps(char* nomFichier,Graphe *graphe) {
 
@@ -98,11 +133,13 @@ void lire_graphe_tps(char* nomFichier,Graphe *graphe) {
     while (fscanf(ifs, "%d%f", &s1, &tps) == 2) {
         graphe->pSommet[s1]->temps=tps;
 
-        //affiche test
-        printf("Sommet %d - Temps : %.2f\n", s1, tps);
+
     }
     fclose(ifs);
 }
+
+
+
 
 
 /* affichage des successeurs du sommet num*/
@@ -136,4 +173,330 @@ void graphe_afficher(Graphe* graphe)
         printf("\n");
     }
 
+}
+
+
+
+
+
+// exclusion
+
+/* recherche en largeur (BFS) à partir d'un sommet donné */
+int BFS(Graphe* graphe, int sommetInitial)
+{
+    // initialisation des structures de données pour BFS
+    bool* visite = (bool*)malloc(graphe->ordre * sizeof(bool));
+    pChemin chemin = NULL;
+    pChemin chemin_temp = NULL;
+
+    station resultat;
+    resultat.station = (int*)malloc(sizeof(int) * graphe->ordre);
+    resultat.taille = 0;
+
+    for (int i = 0; i < graphe->ordre; i++)
+        visite[i] = false;
+
+    // file pour BFS
+    int* file = (int*)malloc(graphe->ordre * sizeof(int));
+    int debut = 0;
+    int fin = 0;
+    int etape = 0; // Variable pour suivre l'étape actuelle du BFS
+
+    // ajouter le sommet initial à la file
+    file[fin++] = sommetInitial;
+    visite[sommetInitial] = true;
+
+    while (debut < fin)
+    {
+        int tailleNiveau = fin - debut;
+        printf("Etape %d : ", etape);
+
+        for (int i = 0; i < tailleNiveau; i++)
+        {
+            int sommetCourant = file[debut++];
+            printf("%d ", sommetCourant);
+
+            // Ajouter les successeurs du sommet courant à la file
+            pArc arc = graphe->pSommet[sommetCourant]->arc;
+            while (arc != NULL)
+            {
+                int successeur = graphe->pSommet[arc->sommet]->valeur;
+                if (!visite[successeur])
+                {
+                    visite[successeur] = true;
+                    file[fin++] = successeur;
+                }
+                arc = arc->arc_suivant;
+            }
+        }
+
+        printf("\n");
+        etape++;
+    }
+
+    //libérer la mémoire
+    free(visite);
+    free(file);
+    liberer_chemin(chemin);
+    free(resultat.station);
+    return etape;
+}
+
+
+
+/* fonction utilitaire pour afficher un chemin */
+void afficher_chemin(pChemin chemin)
+{
+    if (chemin != NULL)
+    {
+        afficher_chemin(chemin->suivant);
+        printf("%d -> ", chemin->sommet);
+    }
+}
+
+/* fonction utilitaire pour libérer la mémoire d'un chemin */
+void liberer_chemin(pChemin chemin)
+{
+    if (chemin != NULL)
+    {
+        liberer_chemin(chemin->suivant);
+        free(chemin);
+    }
+}
+
+
+
+// fonction pour initialiser une composante connexe
+pComposanteConnexe init_composante(int taille)
+{
+    pComposanteConnexe composante = (pComposanteConnexe)malloc(sizeof(struct ComposanteConnexe));
+    composante->sommets = (int*)malloc(taille * sizeof(int));
+    composante->taille = 0;
+    return composante;
+}
+
+// fonction pour ajouter un sommet à une composante connexe
+void ajouter_sommet(pComposanteConnexe composante, int sommet)
+{
+    composante->sommets[composante->taille] = sommet;
+    composante->taille++;
+}
+
+// fonction pour afficher le contenu d'une composante connexe
+void afficher_composante(pComposanteConnexe composante)
+{
+
+    for (int i = 0; i < composante->taille; i++)
+    {
+        printf("%d ", composante->sommets[i]);
+    }
+    printf("\n");
+}
+
+//-----------------------------------------fonction DFS pour trouver une composante connexe----------------------------------------
+void dfs_composante(Graphe* graphe, bool* visite, pComposanteConnexe composante, int sommetCourant)
+{
+    visite[sommetCourant] = true;
+    ajouter_sommet(composante, sommetCourant);
+    pArc arc = graphe->pSommet[sommetCourant]->arc;
+
+    while (arc != NULL)
+    {
+        int successeur = arc->sommet;
+        if (!visite[successeur])
+        {
+            dfs_composante(graphe, visite, composante, successeur);
+        }
+        arc = arc->arc_suivant;
+    }
+}
+
+// fonction pour déterminer les composantes connexes d'un graphe
+void trouver_nb_stations(Graphe* graphe) {
+    bool *visite = (bool *) malloc(graphe->ordre * sizeof(bool));
+    int numero = 1;
+    int etape_maximale = 0;//le nombre d'étape maximal de tous les bfs
+    //creation de autant de tableau que d'ordre pour les differentes sommets a traiter dans les même stations
+    for (int i=0;i<graphe->ordre;i++){
+
+    }
+
+
+    for (int i = 0; i < graphe->ordre; i++)
+        visite[i] = false;
+
+    for (int sommet = 0; sommet < graphe->ordre; sommet++) {
+        if (!visite[sommet]) {
+            // nouvelle composante connexe
+            pComposanteConnexe composante = init_composante(graphe->ordre);
+            dfs_composante(graphe, visite, composante, sommet);
+
+            // afficher le contenu de la composante
+            printf("Composante connexe %d : ", numero++);
+            afficher_composante(composante);
+
+            // appliquer BFS sur la composante connexe
+            printf("BFS sur la composante connexe : ");
+            BFS(graphe, sommet);
+
+            //trouver l'étape max du bfs en cours
+            int etapes_composante = BFS(graphe, sommet);
+
+            // Mettre à jour l'étape maximale
+            if (etapes_composante > etape_maximale) {
+                etape_maximale = etapes_composante;
+            }
+
+            // libérer la mémoire de la composante
+            free(composante->sommets);
+            free(composante);
+            printf("\n");
+        }
+    }
+
+    printf("le nombre de station necessaire est de %d\n", etape_maximale);
+    free(visite);
+}
+
+
+//contrainte de precedence
+bool* trouver_sources(Graphe* graphe, Graphe* graphe1) {
+    // Tableau pour compter le nombre de prédécesseurs de chaque sommet
+    int* comptePred = (int*)malloc(graphe->ordre * sizeof(int));
+    for (int i = 0; i < graphe->ordre; i++) {
+        comptePred[i] = 0;
+    }
+
+    // Tableau pour suivre les sommets déjà visités
+    bool* dejaVu = (bool*)malloc(graphe->ordre * sizeof(bool));
+    for (int i = 0; i < graphe->ordre; i++) {
+        dejaVu[i] = false;
+    }
+
+    // Parcourir tous les sommets pour compter les prédécesseurs
+    for (int i = 0; i < graphe->ordre; i++) {
+        pArc arc = graphe->pSommet[i]->arc;
+        while (arc != NULL) {
+            comptePred[arc->sommet]++;
+            arc = arc->arc_suivant;
+        }
+    }
+
+    // Afficher les sommets sans prédécesseur (sources)
+    printf("Les sommets sources du graphe sont : ");
+    for (int i = 0; i < graphe->ordre; i++) {
+        if (comptePred[i] == 0) {
+            printf("%d ", i);
+            dejaVu[i] = true;
+        }
+    }
+
+    printf("\n");
+
+    // Vérifier les successeurs dans le graphe non orienté
+    for (int i = 0; i < graphe->ordre; i++) {
+        if (dejaVu[i]) {
+            pArc arc = graphe->pSommet[i]->arc;
+
+            // Vérifier si le sommet n'a pas d'arc sortant
+            if (arc == NULL) {
+                dejaVu[i] = true;
+                printf("le sommet %d est source 1\n",i);
+            } else {
+                // Vérifier si le successeur a un seul prédécesseur dans le graphe non orienté
+
+                int successeur = arc->sommet;
+                printf("le sucesseur de %d est %d\n",i,successeur);
+                if(graphe->pSommet[successeur]->degre+1!=graphe1->pSommet[successeur]->degre)
+                {
+                    dejaVu[i]=false;
+                    printf("le sommet %d n'est pas source\n",i);
+                }
+
+            }
+        }
+    }
+
+    // Libérer la mémoire
+    free(comptePred);
+
+    return dejaVu;
+}
+
+float BFS_temps(Graphe* graphe, int sommetInitial)
+{
+    // initialisation des structures de données pour BFS
+    bool* visite = (bool*)malloc(graphe->ordre * sizeof(bool));
+    pChemin chemin = NULL;
+    pChemin chemin_temp = NULL;
+    float temps_total=0;
+
+    for (int i = 0; i < graphe->ordre; i++)
+        visite[i] = false;
+
+    // file pour BFS
+    int* file = (int*)malloc(graphe->ordre * sizeof(int));
+    int debut = 0;
+    int fin = 0;
+    int etape = 0; // Variable pour suivre l'étape actuelle du BFS
+
+    // ajouter le sommet initial à la file
+    file[fin++] = sommetInitial;
+    visite[sommetInitial] = true;
+
+    while (debut < fin)
+    {
+        int tailleNiveau = fin - debut;
+
+        float temps_max_etape = 0;
+
+        for (int i = 0; i < tailleNiveau; i++)
+        {
+            int sommetCourant = file[debut++];
+
+            // Ajouter les successeurs du sommet courant à la file
+            pArc arc = graphe->pSommet[sommetCourant]->arc;
+            while (arc != NULL)
+            {
+                int successeur = graphe->pSommet[arc->sommet]->valeur;
+                if (!visite[successeur])
+                {
+                    visite[successeur] = true;
+                    file[fin++] = successeur;
+                }
+
+                // Mettre à jour le temps maximal trouvé à chaque étape
+                float temps_successeur = graphe->pSommet[arc->sommet]->temps;
+                if (temps_successeur > temps_max_etape) {
+                    temps_max_etape = temps_successeur;
+                }
+
+                arc = arc->arc_suivant;
+            }
+        }
+        temps_total += temps_max_etape;
+        etape++;
+    }
+
+    //libérer la mémoire
+    free(visite);
+    free(file);
+    liberer_chemin(chemin);
+
+    return temps_total;
+}
+
+
+float temps_total(Graphe *graphe, bool *source)
+{
+    float temps_total=0;
+    for (int i =0;i< graphe->ordre;i++)
+    {
+        if(source[i]==1){
+            float tempsbfs = BFS_temps(graphe,i);
+            printf("le temps du bfs a partir du somment %d est de %f\n",i,tempsbfs);
+            temps_total+=tempsbfs;
+        }
+    }
+    return temps_total;
 }
