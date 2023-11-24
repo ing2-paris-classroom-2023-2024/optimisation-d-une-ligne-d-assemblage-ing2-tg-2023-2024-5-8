@@ -4,12 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <stdbool.h>
 
 /* Structure d'un arc*/
 struct Arc
 {
     int sommet; // numéro de sommet d'un arc adjacent au sommet initial
-    int valeur;
+    int poids;
     struct Arc* arc_suivant;
 };
 
@@ -22,6 +23,7 @@ struct Sommet
     struct Arc* arc;
     float temps;
     int valeur;
+    int degre;
 
 };
 
@@ -36,6 +38,36 @@ typedef struct Graphe
     pSommet* pSommet;
 } Graphe;
 
+struct Pile {
+    pSommet sommets[15];
+    int sommetCourant;
+};
+// structure pour stocker une composante connexe
+struct ComposanteConnexe
+{
+    int* sommets; // tableau des sommets dans la composante
+    int taille;   // nombre de sommets dans la composante
+};
+
+// alias de pointeur sur une composante connexe
+typedef struct ComposanteConnexe* pComposanteConnexe;
+
+/* structure pour stocker un chemin */
+struct Chemin
+{
+    int sommet;
+    struct Chemin* suivant;
+};
+
+/* alias de pointeur sur un Chemin */
+typedef struct Chemin* pChemin;
+
+typedef struct{
+    int *station;
+    int taille
+}station;
+
+
 
 // créer le graphe
 Graphe* CreerGraphe(int ordre);
@@ -49,6 +81,23 @@ void afficher_successeurs(pSommet * sommet, int num);
 /*affichage du graphe avec les successeurs de chaque sommet */
 void graphe_afficher(Graphe* graphe);
 
+Graphe* lire_graphe(char* nomFichier);
+Graphe* lire_graphe_oriente(char* nomFichier);
 void lire_graphe_tps(char* nomFichier,Graphe *graphe);
 
+
+//fonction de la contrainte exclusion
+int BFS(Graphe* graphe, int sommetInitial);
+void afficher_chemin(pChemin chemin);
+void liberer_chemin(pChemin chemin);
+pComposanteConnexe init_composante(int taille);
+void ajouter_sommet(pComposanteConnexe composante, int sommet);
+void afficher_composante(pComposanteConnexe composante);
+void dfs_composante(Graphe* graphe, bool* visite, pComposanteConnexe composante, int sommetCourant);
+void trouver_nb_stations(Graphe* graphe);
+
+//fonction contrainte precedence
+bool *trouver_sources(Graphe* graphe,Graphe *graphe1);
+float BFS_temps(Graphe* graphe, int sommetInitial);
+float temps_total(Graphe *graphe,bool *source);
 #endif
