@@ -24,6 +24,7 @@ struct Sommet
     float temps;
     int valeur;
     int degre;
+    int couleur;
 
 };
 
@@ -67,7 +68,10 @@ typedef struct{
     int taille
 }station;
 
-
+struct SommetColor {
+    struct Sommet* sommet;
+    int couleur;
+};
 
 // créer le graphe
 Graphe* CreerGraphe(int ordre);
@@ -100,4 +104,15 @@ void trouver_nb_stations(Graphe* graphe);
 bool *trouver_sources(Graphe* graphe,Graphe *graphe1);
 float BFS_temps(Graphe* graphe, int sommetInitial);
 float temps_total(Graphe *graphe,bool *source);
+
+//algo pour la coloration
+int trouverCouleurMinimale(struct Graphe* graphe, int sommet);
+int couleurChromatique(struct Graphe* graphe);
+void trouver_nb_stations_colo(Graphe* graphe);
+int couleurChromatiqueComposante(struct Graphe* graphe, pComposanteConnexe composante);
+
+
+//lien entre toutes les contraintes
+float BFS_temps_contraindre(Graphe* grapheExclusion, Graphe* graphePrecOriente, int sommetInitial);
+void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePrecOriente, Graphe* graphePrecNonOriente);
 #endif
