@@ -317,10 +317,6 @@ void trouver_nb_stations(Graphe* graphe) {
     int numero = 1;
     int etape_maximale = 0;//le nombre d'étape maximal de tous les bfs
     //creation de autant de tableau que d'ordre pour les differentes sommets a traiter dans les même stations
-    for (int i=0;i<graphe->ordre;i++){
-
-    }
-
 
     for (int i = 0; i < graphe->ordre; i++)
         visite[i] = false;
@@ -355,6 +351,128 @@ void trouver_nb_stations(Graphe* graphe) {
     }
 
     printf("le nombre de station necessaire est de %d\n", etape_maximale);
+    free(visite);
+}
+
+//exclusion optimise
+
+
+// Fonction pour trouver la couleur minimale non utilisée par les voisins
+int trouverCouleurMinimale(struct Graphe* graphe, int sommetIndex) {
+    int* couleursVoisins = (int*)malloc(graphe->ordre * sizeof(int));
+    for (int i = 0; i < graphe->ordre; i++) {
+        couleursVoisins[i] = -1;
+    }
+
+    struct Arc* arc = graphe->pSommet[sommetIndex]->arc;
+    while (arc != NULL) {
+        int couleurVoisin = graphe->pSommet[arc->sommet]->couleur;
+        if (couleurVoisin != -1) {
+            couleursVoisins[couleurVoisin] = couleurVoisin;
+        }
+        arc = arc->arc_suivant;
+    }
+
+    int couleur;
+    for (couleur = 0; couleur < graphe->ordre; couleur++) {
+        if (couleursVoisins[couleur] == -1) {
+            break;
+        }
+    }
+
+    free(couleursVoisins);
+    return couleur;
+}
+
+// Fonction pour trouver la couleur chromatique du graphe
+int couleurChromatique(struct Graphe* graphe) {
+
+    // Initialiser les couleurs de tous les sommets
+    for (int i = 0; i < graphe->ordre; i++) {
+        if (graphe->pSommet[i]->arc == NULL) {
+            // Sommet isolé, peut être coloré avec 0
+            graphe->pSommet[i]->couleur = 0;
+        } else {
+            graphe->pSommet[i]->couleur = -1;
+        }
+    }
+
+    // Attribuer les couleurs
+    for (int i = 0; i < graphe->ordre; i++) {
+        if (graphe->pSommet[i]->couleur == -1) {
+            int couleur = trouverCouleurMinimale(graphe, i);
+            graphe->pSommet[i]->couleur = couleur;
+        }
+    }
+
+    int couleurMax = 0;
+    for (int i = 0; i < graphe->ordre; i++) {
+        if (graphe->pSommet[i]->couleur > couleurMax) {
+            couleurMax = graphe->pSommet[i]->couleur;
+        }
+    }
+
+    return couleurMax + 1;
+}
+
+// Fonction pour trouver la couleur chromatique d'une composante connexe
+int couleurChromatiqueComposante(struct Graphe* graphe, pComposanteConnexe composante) {
+    // Réinitialiser les couleurs des sommets dans la composante connexe
+    for (int i = 0; i < composante->taille; i++) {
+        graphe->pSommet[composante->sommets[i]]->couleur = -1;
+    }
+
+    // Attribuer les couleurs
+    for (int i = 0; i < composante->taille; i++) {
+        int sommetIndex = composante->sommets[i];
+        if (graphe->pSommet[sommetIndex]->couleur == -1) {
+            int couleur = trouverCouleurMinimale(graphe, sommetIndex);
+            graphe->pSommet[sommetIndex]->couleur = couleur;
+        }
+    }
+
+    int couleurMax = 0;
+    for (int i = 0; i < composante->taille; i++) {
+        int sommetIndex = composante->sommets[i];
+        if (graphe->pSommet[sommetIndex]->couleur > couleurMax) {
+            couleurMax = graphe->pSommet[sommetIndex]->couleur;
+        }
+    }
+
+    return couleurMax + 1;
+}
+
+
+// fonction pour déterminer les composantes connexes d'un graphe
+void trouver_nb_stations_colo(Graphe* graphe) {
+    bool *visite = (bool *) malloc(graphe->ordre * sizeof(bool));
+    int numero = 1;
+    int etape_maximale = 0;
+
+    for (int i = 0; i < graphe->ordre; i++)
+        visite[i] = false;
+
+    for (int sommet = 0; sommet < graphe->ordre; sommet++) {
+        if (!visite[sommet]) {
+            pComposanteConnexe composante = init_composante(graphe->ordre);
+            dfs_composante(graphe, visite, composante, sommet);
+
+            printf("Composante connexe %d : ", numero++);
+            afficher_composante(composante);
+
+            // Calculer la couleur chromatique pour la composante connexe
+            int couleurComposante = couleurChromatiqueComposante(graphe, composante);
+            if (couleurComposante > etape_maximale) {
+                etape_maximale = couleurComposante;
+            }
+
+            free(composante->sommets);
+            free(composante);
+            printf("\n");
+        }
+    }
+
+    printf("Le nombre de couleurs maximal nécessaire est de %d\n", etape_maximale);
     free(visite);
 }
 
@@ -500,3 +618,91 @@ float temps_total(Graphe *graphe, bool *source)
     }
     return temps_total;
 }
+
+//liaison de toutes les fonctions
+
+float BFS_temps_contraindre(Graphe* grapheExclusion, Graphe* graphePrecOriente, int sommetInitial) {
+    bool* visite = (bool*)malloc(grapheExclusion->ordre * sizeof(bool));
+    int* file = (int*)malloc(grapheExclusion->ordre * sizeof(int));
+    int debut = 0, fin = 0;
+    float tempsTotal = 0;
+    float* tempsMaxParCouleur = (float*)malloc(grapheExclusion->ordre * sizeof(float));
+
+    for (int i = 0; i < grapheExclusion->ordre; i++) {
+        visite[i] = false;
+        tempsMaxParCouleur[i] = 0;
+    }
+
+    file[fin++] = sommetInitial;
+    visite[sommetInitial] = true;
+
+    while (debut < fin) {
+        int tailleNiveau = fin - debut;
+        float tempsEtape = 0;
+        for (int i = 0; i < tailleNiveau; i++) {
+            int sommetCourant = file[debut++];
+            pArc arc = grapheExclusion->pSommet[sommetCourant]->arc;
+
+            while (arc != NULL) {
+                int successeur = arc->sommet;
+                if (!visite[successeur] && graphePrecOriente->pSommet[successeur]->degre == 0) { // Ajout de la vérification de précédence
+                    visite[successeur] = true;
+                    file[fin++] = successeur;
+                }
+
+                int couleur = grapheExclusion->pSommet[successeur]->couleur;
+                float temps = grapheExclusion->pSommet[successeur]->temps;
+                if (temps > tempsMaxParCouleur[couleur]) {
+                    tempsMaxParCouleur[couleur] = temps;
+                }
+
+                // Réduction du degré dans le graphe de précédence
+                pArc arcPrec = graphePrecOriente->pSommet[successeur]->arc;
+                while (arcPrec != NULL) {
+                    graphePrecOriente->pSommet[arcPrec->sommet]->degre--;
+                    arcPrec = arcPrec->arc_suivant;
+                }
+
+                arc = arc->arc_suivant;
+            }
+        }
+
+        for (int i = 0; i < grapheExclusion->ordre; i++) {
+            if (tempsMaxParCouleur[i] > tempsEtape) {
+                tempsEtape = tempsMaxParCouleur[i];
+            }
+            tempsMaxParCouleur[i] = 0;
+        }
+        tempsTotal += tempsEtape;
+    }
+
+    free(visite);
+    free(file);
+    free(tempsMaxParCouleur);
+
+    return tempsTotal;
+}
+
+void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePrecOriente, Graphe* graphePrecNonOriente) {
+    trouver_nb_stations_colo(grapheExclusion);
+
+    bool* sources = trouver_sources(graphePrecOriente, graphePrecNonOriente);
+
+    float tempsTotal = 0;
+    for (int i = 0; i < graphePrecNonOriente->ordre; i++) {
+        if (sources[i]) {
+            float temps = BFS_temps_contraindre(grapheExclusion, graphePrecOriente, i);
+            if (temps > tempsTotal) {
+                tempsTotal = temps;
+            }
+        }
+    }
+
+    printf("Nombre minimal de stations nécessaires : %d\n", couleurChromatique(grapheExclusion));
+    printf("Temps total nécessaire : %f\n", tempsTotal);
+
+    free(sources);
+}
+
+
+
