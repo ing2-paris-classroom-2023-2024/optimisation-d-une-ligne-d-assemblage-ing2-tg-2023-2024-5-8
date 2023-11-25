@@ -6,15 +6,15 @@ int main() {
     Graphe* graphe_prece = lire_graphe_oriente("precedences.txt");
     Graphe* graphe_prece_no = lire_graphe("precedences.txt");
     //graphe_afficher(graphe_exclu);
-    graphe_afficher(graphe_prece);
-    graphe_afficher(graphe_prece_no);
+    //graphe_afficher(graphe_prece);
+    //graphe_afficher(graphe_prece_no);
 
     lire_graphe_tps("operations.txt",graphe_prece);
 
 
     //exclusion
     printf("\n===============            contrainte Exclsuion :            ===============  \n");
-    trouver_nb_stations(graphe_exclu); //que pour le graphe pas oriente
+    trouver_nb_stations_colo(graphe_exclu);
 
 
     //precedence
@@ -31,8 +31,11 @@ int main() {
     printf("\n");
 
     float temps= temps_total(graphe_prece,sommet_source);
-    printf("le temps total du cycle est de %f",temps);
+    printf("le temps total du cycle est de %f\n",temps);
+
+    planifier_et_calculer_temps_total(graphe_exclu,graphe_prece,graphe_prece_no);
 
     return 0;
 }
+
 
