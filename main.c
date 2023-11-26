@@ -15,7 +15,6 @@ int main() {
     printf("\n===============            contrainte Exclsuion :            ===============  \n");
     trouver_nb_stations_colo(graphe_exclu);
 
-
     //precedence
     printf("\n===============            contrainte precedence :            ===============  \n");
 
