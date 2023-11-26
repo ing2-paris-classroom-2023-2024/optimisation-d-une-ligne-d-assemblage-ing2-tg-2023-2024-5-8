@@ -89,7 +89,6 @@ Graphe* lire_graphe(char* nomFichier);
 Graphe* lire_graphe_oriente(char* nomFichier);
 void lire_graphe_tps(char* nomFichier,Graphe *graphe);
 
-
 //fonction de la contrainte exclusion
 int BFS(Graphe* graphe, int sommetInitial);
 void afficher_chemin(pChemin chemin);
@@ -110,7 +109,6 @@ int trouverCouleurMinimale(struct Graphe* graphe, int sommet);
 int couleurChromatique(struct Graphe* graphe);
 void trouver_nb_stations_colo(Graphe* graphe);
 int couleurChromatiqueComposante(struct Graphe* graphe, pComposanteConnexe composante);
-
 
 //lien entre toutes les contraintes
 float BFS_temps_contraindre(Graphe* grapheExclusion, Graphe* graphePrecOriente, int sommetInitial);
