@@ -1,6 +1,5 @@
 #include "definition.c"
 
-
 int main() {
 
     Graphe* graphe_exclu = lire_graphe("exclusions.txt");
