@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <stdbool.h>
 
+
 /* Structure d'un arc*/
 struct Arc
 {
