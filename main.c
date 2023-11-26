@@ -28,7 +28,6 @@ int main() {
 
     float temps= temps_total(graphe_prece,sommet_source);
     printf("le temps total du cycle est de %f\n",temps);
-
     planifier_et_calculer_temps_total(graphe_exclu,graphe_prece,graphe_prece_no);
 
     return 0;
