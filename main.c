@@ -8,7 +8,6 @@ int main() {
     //graphe_afficher(graphe_exclu);
     //graphe_afficher(graphe_prece);
     //graphe_afficher(graphe_prece_no);
-
     
     lire_graphe_tps("operations.txt",graphe_prece);
 
