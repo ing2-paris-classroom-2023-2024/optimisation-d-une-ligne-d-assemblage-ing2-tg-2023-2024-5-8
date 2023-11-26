@@ -1,6 +1,5 @@
 #include "graphe.h"
 
-
 // créer le graphe
 Graphe* CreerGraphe(int ordre)
 {
