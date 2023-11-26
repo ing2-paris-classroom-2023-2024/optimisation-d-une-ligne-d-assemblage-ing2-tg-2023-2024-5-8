@@ -18,7 +18,6 @@ int main() {
     //precedence
     printf("\n===============            contrainte precedence :            ===============  \n");
 
-
     bool *sommet_source=trouver_sources(graphe_prece,graphe_prece_no);
     printf("Tableau sommet_source : ");
     for (int i = 0; i < graphe_prece->ordre; i++) {//le nombre de sommet source max est forcement l'ordre du graphe
