@@ -6,7 +6,6 @@
 #include <limits.h>
 #include <stdbool.h>
 
-
 /* Structure d'un arc*/
 struct Arc
 {
@@ -69,10 +68,10 @@ typedef struct{
     int taille
 }station;
 
-struct SommetColor {
-    struct Sommet* sommet;
-    int couleur;
-};
+typedef struct {
+    float temps_total;
+    int nombre_stations;
+} ResultatBFS;
 
 // créer le graphe
 Graphe* CreerGraphe(int ordre);
@@ -89,6 +88,7 @@ void graphe_afficher(Graphe* graphe);
 Graphe* lire_graphe(char* nomFichier);
 Graphe* lire_graphe_oriente(char* nomFichier);
 void lire_graphe_tps(char* nomFichier,Graphe *graphe);
+
 
 //fonction de la contrainte exclusion
 int BFS(Graphe* graphe, int sommetInitial);
@@ -111,7 +111,9 @@ int couleurChromatique(struct Graphe* graphe);
 void trouver_nb_stations_colo(Graphe* graphe);
 int couleurChromatiqueComposante(struct Graphe* graphe, pComposanteConnexe composante);
 
+
 //lien entre toutes les contraintes
-float BFS_temps_contraindre(Graphe* grapheExclusion, Graphe* graphePrecOriente, int sommetInitial);
+ResultatBFS BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int sommetInitial);
 void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePrecOriente, Graphe* graphePrecNonOriente);
+
 #endif
