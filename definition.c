@@ -135,8 +135,13 @@ void lire_graphe_tps(char* nomFichier,Graphe *graphe) {
 
 
     }
+    for (int i=0;i<graphe->ordre;i++){
+        printf("\nle sommet %d a un temps de %f",i,graphe->pSommet[i]->temps);
+    }
     fclose(ifs);
 }
+
+
 
 
 
@@ -532,10 +537,15 @@ bool* trouver_sources(Graphe* graphe, Graphe* graphe1) {
             }
         }
     }
-
+    printf("les sommets sources sont : ");
+    for (int i=0;i< graphe->ordre;i++){
+        if (dejaVu[i]){
+            printf("%d ",i);
+        }
+    }
     // Libérer la mémoire
     free(comptePred);
-
+    printf("\n");
     return dejaVu;
 }
 
@@ -619,67 +629,77 @@ float temps_total(Graphe *graphe, bool *source)
 
 //liaison de toutes les fonctions
 
-float BFS_temps_contraindre(Graphe* grapheExclusion, Graphe* graphePrecOriente, int sommetInitial) {
-    bool* visite = (bool*)malloc(grapheExclusion->ordre * sizeof(bool));
-    int* file = (int*)malloc(grapheExclusion->ordre * sizeof(int));
-    int debut = 0, fin = 0;
-    float tempsTotal = 0;
-    float* tempsMaxParCouleur = (float*)malloc(grapheExclusion->ordre * sizeof(float));
+ResultatBFS BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int sommetInitial)
+{
+    // initialisation des structures de données pour BFS
+    bool* visite = (bool*)malloc(graphe_prece->ordre * sizeof(bool));
+    pChemin chemin = NULL;
+    pChemin chemin_temp = NULL;
+    int station = 0;
+    float temps_total = 0;
+    int sommetCourant = sommetInitial; // Déclarer la variable à l'extérieur de la boucle
 
-    for (int i = 0; i < grapheExclusion->ordre; i++) {
+    for (int i = 0; i < graphe_prece->ordre; i++)
         visite[i] = false;
-        tempsMaxParCouleur[i] = 0;
-    }
 
+    // file pour BFS
+    int* file = (int*)malloc(graphe_prece->ordre * sizeof(int));
+    int debut = 0;
+    int fin = 0;
+    int etape = 0; // Variable pour suivre l'étape actuelle du BFS
+
+    // ajouter le sommet initial à la file
     file[fin++] = sommetInitial;
     visite[sommetInitial] = true;
 
+    // Couleur du sommet initial dans le graphe d'exclusion
+    int couleurInitiale = grapheExclusion->pSommet[sommetInitial]->couleur;
+
     while (debut < fin) {
         int tailleNiveau = fin - debut;
-        float tempsEtape = 0;
-        for (int i = 0; i < tailleNiveau; i++) {
-            int sommetCourant = file[debut++];
-            pArc arc = grapheExclusion->pSommet[sommetCourant]->arc;
+        float temps_max_etape = 0;
 
+        for (int i = 0; i < tailleNiveau; i++) {
+            sommetCourant = file[debut++];
+
+            // Ajouter les successeurs du sommet courant à la file
+            pArc arc = graphe_prece->pSommet[sommetCourant]->arc;
             while (arc != NULL) {
-                int successeur = arc->sommet;
-                if (!visite[successeur] && graphePrecOriente->pSommet[successeur]->degre == 0) { // Ajout de la vérification de précédence
+                int successeur = graphe_prece->pSommet[arc->sommet]->valeur;
+                if (!visite[successeur]) {
                     visite[successeur] = true;
                     file[fin++] = successeur;
-                }
 
-                int couleur = grapheExclusion->pSommet[successeur]->couleur;
-                float temps = grapheExclusion->pSommet[successeur]->temps;
-                if (temps > tempsMaxParCouleur[couleur]) {
-                    tempsMaxParCouleur[couleur] = temps;
+                    // Mettre à jour le temps maximal trouvé à chaque étape seulement pour les sommets non visités
+                    if (graphe_prece->pSommet[successeur]->temps > temps_max_etape) {
+                        temps_max_etape = graphe_prece->pSommet[successeur]->temps;
+                    }
                 }
-
-                // Réduction du degré dans le graphe de précédence
-                pArc arcPrec = graphePrecOriente->pSommet[successeur]->arc;
-                while (arcPrec != NULL) {
-                    graphePrecOriente->pSommet[arcPrec->sommet]->degre--;
-                    arcPrec = arcPrec->arc_suivant;
-                }
-
                 arc = arc->arc_suivant;
             }
         }
 
-        for (int i = 0; i < grapheExclusion->ordre; i++) {
-            if (tempsMaxParCouleur[i] > tempsEtape) {
-                tempsEtape = tempsMaxParCouleur[i];
-            }
-            tempsMaxParCouleur[i] = 0;
+        // Vérifier la couleur du sommet actuel dans le graphe d'exclusion
+        if (grapheExclusion->pSommet[sommetCourant]->couleur == couleurInitiale) {
+            station++; // Augmenter le nombre de stations si la couleur est la même
+            couleurInitiale = grapheExclusion->pSommet[sommetCourant]->couleur;
         }
-        tempsTotal += tempsEtape;
+        temps_total += temps_max_etape;
+        etape++;
     }
 
+    // libérer la mémoire
     free(visite);
     free(file);
-    free(tempsMaxParCouleur);
+    liberer_chemin(chemin);
 
-    return tempsTotal;
+    ResultatBFS resultat;
+    resultat.temps_total = temps_total;
+    resultat.nombre_stations = station;
+
+    return resultat;
 }
+
 
 void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePrecOriente, Graphe* graphePrecNonOriente) {
     trouver_nb_stations_colo(grapheExclusion);
@@ -687,17 +707,20 @@ void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePr
     bool* sources = trouver_sources(graphePrecOriente, graphePrecNonOriente);
 
     float tempsTotal = 0;
+    int nombreStationsTotal = 0;
+
     for (int i = 0; i < graphePrecNonOriente->ordre; i++) {
         if (sources[i]) {
-            float temps = BFS_temps_contraindre(grapheExclusion, graphePrecOriente, i);
-            if (temps > tempsTotal) {
-                tempsTotal = temps;
-            }
+            printf("application du bfs sur le sommet %d\n",i);
+            ResultatBFS resultat = BFS_temps_exlu(grapheExclusion, graphePrecOriente, i);
+            printf("le temps de la source %d est %f\n",i,resultat.temps_total);
+            tempsTotal += resultat.temps_total;
+            nombreStationsTotal += resultat.nombre_stations;
         }
     }
 
-    printf("Nombre minimal de stations nécessaires : %d\n", couleurChromatique(grapheExclusion));
     printf("Temps total nécessaire : %f\n", tempsTotal);
+    printf("Nombre total de stations nécessaires : %d\n", nombreStationsTotal);
 
     free(sources);
 }
