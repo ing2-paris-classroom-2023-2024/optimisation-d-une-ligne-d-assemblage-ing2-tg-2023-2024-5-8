@@ -662,6 +662,11 @@ ResultatBFS BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int so
         for (int i = 0; i < tailleNiveau; i++) {
             sommetCourant = file[debut++];
 
+            // Considérer aussi le temps du sommetCourant
+            if (graphe_prece->pSommet[sommetCourant]->temps > temps_max_etape) {
+                temps_max_etape = graphe_prece->pSommet[sommetCourant]->temps;
+            }
+
             // Ajouter les successeurs du sommet courant à la file
             pArc arc = graphe_prece->pSommet[sommetCourant]->arc;
             while (arc != NULL) {
@@ -725,5 +730,5 @@ void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePr
     free(sources);
 }
 
-       
+
 
