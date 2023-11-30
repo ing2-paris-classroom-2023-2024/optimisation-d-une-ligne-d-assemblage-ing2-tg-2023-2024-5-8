@@ -258,7 +258,6 @@ void liberer_chemin(pChemin chemin)
 }
 
 
-
 // fonction pour initialiser une composante connexe
 pComposanteConnexe init_composante(int taille)
 {
@@ -468,7 +467,6 @@ void trouver_nb_stations_colo(Graphe* graphe) {
     printf("Le nombre de couleurs maximal nécessaire est de %d\n", etape_maximale);
     free(visite);
 }
-
 
 //contrainte de precedence
 bool* trouver_sources(Graphe* graphe, Graphe* graphe1) {
@@ -719,6 +717,3 @@ void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePr
 
     free(sources);
 }
-
-
-
