@@ -1,5 +1,6 @@
 #include "definition.c"
 
+
 int main() {
 
     Graphe* graphe_exclu = lire_graphe("exclusions.txt");
@@ -28,6 +29,7 @@ int main() {
 
     }
 
+    
     printf("\n");
 
     float temps= temps_total(graphe_prece,sommet_source);
