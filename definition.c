@@ -171,9 +171,7 @@ void graphe_afficher(Graphe* graphe)
         afficher_successeurs(graphe->pSommet, i);
         printf("\n");
     }
-
 }
-
 
 // exclusion
 
@@ -237,7 +235,6 @@ int BFS(Graphe* graphe, int sommetInitial)
     free(resultat.station);
     return etape;
 }
-
 
 
 /* fonction utilitaire pour afficher un chemin */
