@@ -28,7 +28,6 @@ int main() {
         printf("%d ", sommet_source[i]);
 
     }
-
     
     printf("\n");
 
