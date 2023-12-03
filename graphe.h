@@ -6,6 +6,9 @@
 #include <limits.h>
 #include <stdbool.h>
 
+//defini le nombre de tache a effecter dans une ligne d'assemblage
+#define Ordre 36
+
 /* Structure d'un arc*/
 struct Arc
 {
@@ -84,7 +87,7 @@ void afficher_successeurs(pSommet * sommet, int num);
 
 /*affichage du graphe avec les successeurs de chaque sommet */
 void graphe_afficher(Graphe* graphe);
-
+int compter_lignes(FILE* fichier);
 Graphe* lire_graphe(char* nomFichier);
 Graphe* lire_graphe_oriente(char* nomFichier);
 void lire_graphe_tps(char* nomFichier,Graphe *graphe);
