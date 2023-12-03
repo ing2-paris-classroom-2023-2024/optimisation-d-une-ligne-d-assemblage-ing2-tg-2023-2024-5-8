@@ -1,7 +1,6 @@
 #ifndef GRAPHE_H_INCLUDED
 #define GRAPHE_H_INCLUDED
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -69,10 +68,10 @@ typedef struct{
     int taille
 }station;
 
-typedef struct {
-    float temps_total;
-    int nombre_stations;
-} ResultatBFS;
+typedef struct{
+    bool* source;
+    bool* source_isole
+}res_source;
 
 // créer le graphe
 Graphe* CreerGraphe(int ordre);
@@ -102,9 +101,9 @@ void dfs_composante(Graphe* graphe, bool* visite, pComposanteConnexe composante,
 void trouver_nb_stations(Graphe* graphe);
 
 //fonction contrainte precedence
-bool *trouver_sources(Graphe* graphe,Graphe *graphe1);
+res_source trouver_sources(Graphe* graphe,Graphe *graphe1);
 float BFS_temps(Graphe* graphe, int sommetInitial);
-float temps_total(Graphe *graphe,bool *source);
+float temps_total(Graphe *graphe,bool *source,bool* source_isole);
 
 //algo pour la coloration
 int trouverCouleurMinimale(struct Graphe* graphe, int sommet);
@@ -114,7 +113,7 @@ int couleurChromatiqueComposante(struct Graphe* graphe, pComposanteConnexe compo
 
 
 //lien entre toutes les contraintes
-ResultatBFS BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int sommetInitial);
+int ** BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int sommetInitial,int **matrice, bool* sommet_isole);
 void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePrecOriente, Graphe* graphePrecNonOriente);
 
 #endif
