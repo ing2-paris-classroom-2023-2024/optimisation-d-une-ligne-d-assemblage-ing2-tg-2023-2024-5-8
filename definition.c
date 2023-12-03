@@ -57,6 +57,25 @@ pSommet* CreerArete(pSommet* sommet,int s1,int s2,int poids)
     }
 }
 
+
+// Fonction pour compter le nombre de lignes dans un fichier
+int compter_lignes(FILE* fichier) {
+    int caractere;
+    int nombre_lignes = 0;
+
+    while ((caractere = fgetc(fichier)) != EOF) {
+        if (caractere == '\n') {
+            nombre_lignes++;
+        }
+    }
+
+    // Rembobiner le fichier à la position initiale
+    rewind(fichier);
+
+    return nombre_lignes;
+}
+
+
 /* La construction du réseau peut se faire à partir d'un fichier dont le nom est passé en paramètre
 Le fichier contient : ordre, taille et liste des arcs avec leurs poids */
 Graphe* lire_graphe(char* nomFichier) {
@@ -69,12 +88,11 @@ Graphe* lire_graphe(char* nomFichier) {
         exit(-1);
     }
 
-    fscanf(ifs, "%d", &ordre);
-    graphe = CreerGraphe(ordre);
-    graphe->ordre = ordre;
 
-    // Lire la taille du graphe
-    fscanf(ifs, "%d", &taille);
+    graphe = CreerGraphe(Ordre);
+    graphe->ordre = Ordre;
+
+    taille = compter_lignes(ifs);
     graphe->taille = taille;
 
     // Lire les arêtes du graphe
@@ -99,12 +117,11 @@ Graphe* lire_graphe_oriente(char* nomFichier) {
         exit(-1);
     }
 
-    fscanf(ifs, "%d", &ordre);
-    graphe = CreerGraphe(ordre);
-    graphe->ordre = ordre;
 
-    // Lire la taille du graphe
-    fscanf(ifs, "%d", &taille);
+    graphe = CreerGraphe(Ordre);
+    graphe->ordre = Ordre;
+
+    taille = compter_lignes(ifs);
     graphe->taille = taille;
 
     // Lire les arêtes du graphe
@@ -116,6 +133,7 @@ Graphe* lire_graphe_oriente(char* nomFichier) {
     fclose(ifs);
     return graphe;
 }
+
 
 
 void lire_graphe_tps(char* nomFichier,Graphe *graphe) {
@@ -777,3 +795,6 @@ void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePr
 
     free(sources.source);
 }
+
+
+
