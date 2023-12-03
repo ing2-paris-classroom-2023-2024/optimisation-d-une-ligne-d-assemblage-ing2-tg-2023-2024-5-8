@@ -1,6 +1,5 @@
 #include "definition.c"
 
-
 int main() {
 
     Graphe* graphe_exclu = lire_graphe("exclusions.txt");
@@ -22,16 +21,21 @@ int main() {
     printf("\n===============            contrainte precedence :            ===============  \n");
 
 
-    bool *sommet_source=trouver_sources(graphe_prece,graphe_prece_no);
+    res_source sommet_source=trouver_sources(graphe_prece,graphe_prece_no);
     printf("Tableau sommet_source : ");
     for (int i = 0; i < graphe_prece->ordre; i++) {//le nombre de sommet source max est forcement l'ordre du graphe
-        printf("%d ", sommet_source[i]);
+        printf("%d ", sommet_source.source[i]);
 
     }
-    
+    printf("\nles sommets isoles sont : ");
+    for (int i = 0; i < graphe_prece->ordre; i++){
+        if (sommet_source.source_isole[i]==1)
+        printf("%d ",i);
+    }
+
     printf("\n");
 
-    float temps= temps_total(graphe_prece,sommet_source);
+    float temps= temps_total(graphe_prece,sommet_source.source,sommet_source.source_isole);
     printf("le temps total du cycle est de %f\n\n",temps);
 
     printf("\n===============            liaison de toutes les contraintes :            ===============  \n");
@@ -41,3 +45,4 @@ int main() {
 
     return 0;
 }
+
