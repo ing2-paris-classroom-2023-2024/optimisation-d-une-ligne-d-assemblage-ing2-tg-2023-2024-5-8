@@ -11,12 +11,15 @@ int main() {
 
     lire_graphe_tps("operations.txt",graphe_prece);
 
+
     //exclusion
     printf("\n===============            contrainte Exclsuion :            ===============  \n");
     trouver_nb_stations_colo(graphe_exclu);
 
+
     //precedence
     printf("\n===============            contrainte precedence :            ===============  \n");
+
 
     res_source sommet_source=trouver_sources(graphe_prece,graphe_prece_no);
     printf("Tableau sommet_source : ");
