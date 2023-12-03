@@ -118,6 +118,7 @@ Graphe* lire_graphe_oriente(char* nomFichier) {
 }
 
 
+
 void lire_graphe_tps(char* nomFichier,Graphe *graphe) {
 
     FILE* ifs = fopen(nomFichier, "r");
@@ -139,6 +140,10 @@ void lire_graphe_tps(char* nomFichier,Graphe *graphe) {
     }
     fclose(ifs);
 }
+
+
+
+
 
 /* affichage des successeurs du sommet num*/
 void afficher_successeurs(pSommet * sommet, int num)
@@ -170,7 +175,12 @@ void graphe_afficher(Graphe* graphe)
         afficher_successeurs(graphe->pSommet, i);
         printf("\n");
     }
+
 }
+
+
+
+
 
 // exclusion
 
@@ -236,6 +246,7 @@ int BFS(Graphe* graphe, int sommetInitial)
 }
 
 
+
 /* fonction utilitaire pour afficher un chemin */
 void afficher_chemin(pChemin chemin)
 {
@@ -255,6 +266,7 @@ void liberer_chemin(pChemin chemin)
         free(chemin);
     }
 }
+
 
 
 // fonction pour initialiser une composante connexe
@@ -467,8 +479,9 @@ void trouver_nb_stations_colo(Graphe* graphe) {
     free(visite);
 }
 
+
 //contrainte de precedence
-bool* trouver_sources(Graphe* graphe, Graphe* graphe1) {
+res_source trouver_sources(Graphe* graphe, Graphe* graphe1) {
     // Tableau pour compter le nombre de prédécesseurs de chaque sommet
     int* comptePred = (int*)malloc(graphe->ordre * sizeof(int));
     for (int i = 0; i < graphe->ordre; i++) {
@@ -477,9 +490,14 @@ bool* trouver_sources(Graphe* graphe, Graphe* graphe1) {
 
     // Tableau pour suivre les sommets déjà visités
     bool* dejaVu = (bool*)malloc(graphe->ordre * sizeof(bool));
+    bool* source_isole = (bool*)malloc(graphe->ordre * sizeof(bool));
     for (int i = 0; i < graphe->ordre; i++) {
         dejaVu[i] = false;
     }
+    // Stocker les résultats dans la structure res_source
+    res_source resultats;
+    resultats.source = (bool*)malloc(graphe->ordre * sizeof(bool));
+    resultats.source_isole = (bool*)malloc(graphe->ordre * sizeof(bool));
 
     // Parcourir tous les sommets pour compter les prédécesseurs
     for (int i = 0; i < graphe->ordre; i++) {
@@ -518,6 +536,7 @@ bool* trouver_sources(Graphe* graphe, Graphe* graphe1) {
                 if(graphe->pSommet[successeur]->degre+1!=graphe1->pSommet[successeur]->degre)
                 {
                     dejaVu[i]=false;
+                    source_isole[i]=true;
                     printf("le sommet %d n'est pas source\n",i);
                 }
 
@@ -530,10 +549,21 @@ bool* trouver_sources(Graphe* graphe, Graphe* graphe1) {
             printf("%d ",i);
         }
     }
+
     // Libérer la mémoire
     free(comptePred);
     printf("\n");
-    return dejaVu;
+
+    for (int i=0;i<graphe->ordre;i++){
+        if (dejaVu[i]==1){
+            resultats.source[i]=1;
+        }
+        if(source_isole[i]==1){
+            resultats.source_isole[i]=1;
+        }
+    }
+
+    return resultats;
 }
 
 float BFS_temps(Graphe* graphe, int sommetInitial)
@@ -600,7 +630,7 @@ float BFS_temps(Graphe* graphe, int sommetInitial)
 }
 
 
-float temps_total(Graphe *graphe, bool *source)
+float temps_total(Graphe *graphe, bool *source,bool* source_isole)
 {
     float temps_total=0;
     for (int i =0;i< graphe->ordre;i++)
@@ -610,20 +640,23 @@ float temps_total(Graphe *graphe, bool *source)
             printf("le temps du bfs a partir du somment %d est de %f\n",i,tempsbfs);
             temps_total+=tempsbfs;
         }
+        if(source_isole[i]==1){
+            temps_total+=graphe->pSommet[i]->temps;
+        }
+
     }
     return temps_total;
 }
 
 //liaison de toutes les fonctions
 
-ResultatBFS BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int sommetInitial)
+int ** BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int sommetInitial, int **matrice,bool* sommet_isole)
 {
     // initialisation des structures de données pour BFS
     bool* visite = (bool*)malloc(graphe_prece->ordre * sizeof(bool));
     pChemin chemin = NULL;
     pChemin chemin_temp = NULL;
     int station = 0;
-    float temps_total = 0;
     int sommetCourant = sommetInitial; // Déclarer la variable à l'extérieur de la boucle
 
     for (int i = 0; i < graphe_prece->ordre; i++)
@@ -641,6 +674,20 @@ ResultatBFS BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int so
 
     // Couleur du sommet initial dans le graphe d'exclusion
     int couleurInitiale = grapheExclusion->pSommet[sommetInitial]->couleur;
+    matrice[station][sommetInitial] = 1;
+
+    //ajouter les sommets isolé dans les stations car sinon ils ne sont pas pris en compte
+    for (int i=0;i<graphe_prece->ordre;i++){
+        if(sommet_isole[i]==1 ){
+            if (couleurInitiale==graphe_prece->pSommet[i]->couleur){
+                matrice[station+1][i]=1;
+            }
+            else{
+                matrice[station][i]=1;
+            }
+
+        }
+    }
 
     while (debut < fin) {
         int tailleNiveau = fin - debut;
@@ -649,11 +696,6 @@ ResultatBFS BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int so
         for (int i = 0; i < tailleNiveau; i++) {
             sommetCourant = file[debut++];
 
-            // Considérer aussi le temps du sommetCourant
-            if (graphe_prece->pSommet[sommetCourant]->temps > temps_max_etape) {
-                temps_max_etape = graphe_prece->pSommet[sommetCourant]->temps;
-            }
-
             // Ajouter les successeurs du sommet courant à la file
             pArc arc = graphe_prece->pSommet[sommetCourant]->arc;
             while (arc != NULL) {
@@ -661,23 +703,18 @@ ResultatBFS BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int so
                 if (!visite[successeur]) {
                     visite[successeur] = true;
                     file[fin++] = successeur;
-
-                    // Mettre à jour le temps maximal trouvé à chaque étape seulement pour les sommets non visités
-                    if (graphe_prece->pSommet[successeur]->temps > temps_max_etape) {
-                        temps_max_etape = graphe_prece->pSommet[successeur]->temps;
+                    if (graphe_prece->pSommet[successeur]->couleur==couleurInitiale){
+                        matrice[station+1][successeur]=1;
                     }
+
                 }
                 arc = arc->arc_suivant;
             }
         }
 
-        // Vérifier la couleur du sommet actuel dans le graphe d'exclusion
-        if (grapheExclusion->pSommet[sommetCourant]->couleur == couleurInitiale) {
-            station++; // Augmenter le nombre de stations si la couleur est la même
-            couleurInitiale = grapheExclusion->pSommet[sommetCourant]->couleur;
-        }
-        temps_total += temps_max_etape;
+        couleurInitiale=graphe_prece->pSommet[sommetCourant]->couleur;
         etape++;
+        station++;
     }
 
     // libérer la mémoire
@@ -685,36 +722,62 @@ ResultatBFS BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int so
     free(file);
     liberer_chemin(chemin);
 
-    ResultatBFS resultat;
-    resultat.temps_total = temps_total;
-    resultat.nombre_stations = station;
 
-    return resultat;
+
+    return matrice;
 }
 
 
 void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePrecOriente, Graphe* graphePrecNonOriente) {
     trouver_nb_stations_colo(grapheExclusion);
 
-    bool* sources = trouver_sources(graphePrecOriente, graphePrecNonOriente);
+    res_source sources = trouver_sources(graphePrecOriente, graphePrecNonOriente);
 
     float tempsTotal = 0;
-    int nombreStationsTotal = 0;
+    float temps_max_station=0;
 
-    for (int i = 0; i < graphePrecNonOriente->ordre; i++) {
-        if (sources[i]) {
-            printf("application du bfs sur le sommet %d\n",i);
-            ResultatBFS resultat = BFS_temps_exlu(grapheExclusion, graphePrecOriente, i);
-            printf("le temps de la source %d est %f\n",i,resultat.temps_total);
-            tempsTotal += resultat.temps_total;
-            nombreStationsTotal += resultat.nombre_stations;
+    int taille = graphePrecOriente->ordre;
+
+// Créer la matrice carrée
+    int** matrice = (int**)malloc(taille * sizeof(int*));
+    for (int i = 0; i < taille; i++) {
+        matrice[i] = (int*)malloc(taille * sizeof(int));
+    }
+
+// Initialiser la matrice avec des valeurs par défaut (par exemple, 0)
+    for (int i = 0; i < taille; i++) {
+        for (int j = 0; j < taille; j++) {
+            matrice[i][j] = 0;
         }
     }
 
-    printf("Temps total nécessaire : %f\n", tempsTotal);
-    printf("Nombre total de stations nécessaires : %d\n", nombreStationsTotal);
+    for (int i = 0; i < graphePrecNonOriente->ordre; i++) {
+        if (sources.source[i]) {
+            printf("application du bfs sur le sommet %d\n",i);
+            int ** resultat = BFS_temps_exlu(grapheExclusion, graphePrecOriente, i, matrice,sources.source_isole);
+        }
+    }
 
-    free(sources);
+    for(int i=0;i<graphePrecOriente->ordre;i++){
+        temps_max_station=0;
+        printf("station %d: ",i);
+        for (int j=0;j<graphePrecOriente->ordre;j++){
+            if(matrice[i][j]==1){
+                printf("%d ",j);
+                if(temps_max_station<graphePrecOriente->pSommet[j]->temps){
+                    temps_max_station=graphePrecOriente->pSommet[j]->temps;
+                }
+            }
+        }
+        tempsTotal+=temps_max_station;
+        printf("le temps de la station est de %f",temps_max_station);
+        printf("\n");
+    }
+
+    printf("le temps total est de %f",tempsTotal);
+
+    free(sources.source);
 }
+
 
 
