@@ -118,7 +118,6 @@ Graphe* lire_graphe_oriente(char* nomFichier) {
 }
 
 
-
 void lire_graphe_tps(char* nomFichier,Graphe *graphe) {
 
     FILE* ifs = fopen(nomFichier, "r");
@@ -778,6 +777,3 @@ void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePr
 
     free(sources.source);
 }
-
-
-
