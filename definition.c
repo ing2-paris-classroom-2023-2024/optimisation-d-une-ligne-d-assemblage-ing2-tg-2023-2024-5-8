@@ -134,8 +134,6 @@ Graphe* lire_graphe_oriente(char* nomFichier) {
     return graphe;
 }
 
-
-
 void lire_graphe_tps(char* nomFichier,Graphe *graphe) {
 
     FILE* ifs = fopen(nomFichier, "r");
