@@ -46,6 +46,7 @@ struct Pile {
     pSommet sommets[15];
     int sommetCourant;
 };
+
 // structure pour stocker une composante connexe
 struct ComposanteConnexe
 {
