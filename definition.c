@@ -789,6 +789,5 @@ void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePr
     }
 
     printf("le temps total est de %f",tempsTotal);
-
     free(sources.source);
 }
