@@ -158,9 +158,6 @@ void lire_graphe_tps(char* nomFichier,Graphe *graphe) {
 }
 
 
-
-
-
 /* affichage des successeurs du sommet num*/
 void afficher_successeurs(pSommet * sommet, int num)
 {
