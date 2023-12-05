@@ -121,4 +121,5 @@ int couleurChromatiqueComposante(struct Graphe* graphe, pComposanteConnexe compo
 int ** BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int sommetInitial,int **matrice, bool* sommet_isole);
 void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePrecOriente, Graphe* graphePrecNonOriente);
 
+
 #endif
