@@ -795,6 +795,3 @@ void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePr
 
     free(sources.source);
 }
-
-
-
