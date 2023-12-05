@@ -737,7 +737,6 @@ int ** BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int sommetI
     return matrice;
 }
 
-
 void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePrecOriente, Graphe* graphePrecNonOriente) {
     trouver_nb_stations_colo(grapheExclusion);
 
