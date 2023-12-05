@@ -120,4 +120,3 @@ int ** BFS_temps_exlu(Graphe* grapheExclusion, Graphe* graphe_prece, int sommetI
 void planifier_et_calculer_temps_total(Graphe* grapheExclusion, Graphe* graphePrecOriente, Graphe* graphePrecNonOriente);
 
 #endif
-
