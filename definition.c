@@ -196,9 +196,6 @@ void graphe_afficher(Graphe* graphe)
 }
 
 
-
-
-
 // exclusion
 
 /* recherche en largeur (BFS) à partir d'un sommet donné */
