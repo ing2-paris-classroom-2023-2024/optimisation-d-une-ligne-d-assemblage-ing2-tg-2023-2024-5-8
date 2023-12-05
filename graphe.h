@@ -103,6 +103,7 @@ void afficher_composante(pComposanteConnexe composante);
 void dfs_composante(Graphe* graphe, bool* visite, pComposanteConnexe composante, int sommetCourant);
 void trouver_nb_stations(Graphe* graphe);
 
+
 //fonction contrainte precedence
 res_source trouver_sources(Graphe* graphe,Graphe *graphe1);
 float BFS_temps(Graphe* graphe, int sommetInitial);
